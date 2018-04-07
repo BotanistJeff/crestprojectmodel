@@ -1,5 +1,6 @@
 building_size=[50000,35000,12000];
 apartment_depth=7000;
+apartment_width=5000;
 hallway_width=2000;
 warehouse_size=[building_size.x-(apartment_depth+hallway_width),
                 building_size.y-(apartment_depth+hallway_width),
@@ -8,6 +9,7 @@ wall_thick=200;
 half_wall=wall_thick/2;
 tab_size=2000;
 margin=1;
+floor_height = building_size.z/4;
 
 module wall_tabs(inverse=false)
 {
@@ -68,6 +70,20 @@ module east_int ()
 {
     normal_wall(warehouse_size.y, inverse=true);
 }
+module apartment_floor()
+{
+    offset(delta=half_wall) difference() {
+        square([building_size.x,building_size.y]);
+        translate([-(apartment_depth+hallway_width),
+                   -(apartment_depth+hallway_width)])
+            square([building_size.x,building_size.y]);
+
+    }
+}
+module upright_wall()
+{
+    normal_wall(apartment_depth);
+}
 color("green") ground();
 
 color("blue") place_wall(pos=[0,building_size.y,0]) north_wall();
@@ -77,3 +93,11 @@ place_wall(rot=90) west_wall();
 
 color("blue") place_wall(pos=[0,warehouse_size.y,0]) north_int();
 place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
+
+for(z=[floor_height:floor_height:building_size.z-1])
+    translate([0,0,z])
+        color("purple") linear_extrude(wall_thick) apartment_floor();
+for(y=[apartment_width:apartment_width:building_size.y-apartment_width])
+    color("orange") place_wall([building_size.x-apartment_depth,y,0]) upright_wall();
+for(x=[apartment_width:apartment_width:building_size.x-2*apartment_width])
+    color("orange") place_wall([x,building_size.y-apartment_depth,0],rot=90) upright_wall();
