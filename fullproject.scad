@@ -1,4 +1,9 @@
 building_size=[50000,35000,12000];
+apartment_depth=7000;
+hallway_width=2000;
+warehouse_size=[building_size.x-(apartment_depth+hallway_width),
+                building_size.y-(apartment_depth+hallway_width),
+                building_size.z];
 wall_thick=200;
 half_wall=wall_thick/2;
 tab_size=2000;
@@ -8,12 +13,12 @@ module wall_tabs(inverse=false)
 {
     for(y=[(inverse?0:tab_size) :tab_size*2:tab_size*12])
         translate([0,y])
-            square([wall_thick*2+margin,tab_size+margin],center=true);
+            square([wall_thick+margin,tab_size+margin],center=true);
 }
 module place_wall(pos=[0,0,0],rot=0)
 {
     translate(pos) rotate([90,0,rot])
-        translate([-half_wall,0,-half_wall])
+        translate([0,0,-half_wall])
             linear_extrude(wall_thick)
                 children();
 }
@@ -24,47 +29,51 @@ module ground()
               building_size.y+10000,
               10]);
 }
-module north_wall()
+module normal_wall(length, inverse=false)
 {
     difference() {
-        square([building_size.x+wall_thick,
-                building_size.z]);
-        wall_tabs();
-        translate([building_size.x+wall_thick,0]) wall_tabs();
+        translate([-wall_thick/2,0])
+            square([length+wall_thick, building_size.z]);
+        wall_tabs(inverse);
+        translate([length,0]) wall_tabs(inverse);
     }
+}
+module north_wall()
+{
+    normal_wall(building_size.x);
 }
 module east_wall()
 {
-    difference() {
-        square([building_size.y+wall_thick,
-                building_size.z]);
-        wall_tabs(inverse=true);
-        translate([building_size.y+wall_thick,0])
-            wall_tabs(inverse=true);
-    }
+    normal_wall(building_size.y, inverse=true);
 }
 module south_wall()
 {
     difference() {
-        square([building_size.x+wall_thick,
-                building_size.z]);
-        wall_tabs();
-        translate([building_size.x+wall_thick,0]) wall_tabs();
+        normal_wall(building_size.x);
+        translate([warehouse_size.x,0]) wall_tabs();
     }
 }
 module west_wall()
 {
     difference() {
-        square([building_size.y+wall_thick,
-                building_size.z]);
-        wall_tabs(inverse=true);
-        translate([building_size.y+wall_thick,0])
-            wall_tabs(inverse=true);
+        normal_wall(building_size.y, inverse=true);
+        translate([warehouse_size.y,0]) wall_tabs(inverse=true);
     }
 }
+module north_int()
+{
+    normal_wall(warehouse_size.x);
+}
+module east_int ()
+{
+    normal_wall(warehouse_size.y, inverse=true);
+}
 color("green") ground();
-color("blue") place_wall(pos=[0,building_size.y,0])
-    north_wall();
+
+color("blue") place_wall(pos=[0,building_size.y,0]) north_wall();
 place_wall(pos=[building_size.x,0,0],rot=90) east_wall();
 color("red") place_wall() south_wall();
 place_wall(rot=90) west_wall();
+
+color("blue") place_wall(pos=[0,warehouse_size.y,0]) north_int();
+place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
