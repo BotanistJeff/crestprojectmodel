@@ -1,8 +1,15 @@
 building_size=[50000,35000,12000];
 wall_thick=200;
 half_wall=wall_thick/2;
+tab_size=2000;
+margin=1;
 
-
+module wall_tabs(inverse=false)
+{
+    for(y=[(inverse?0:tab_size) :tab_size*2:tab_size*12])
+        translate([0,y])
+            square([wall_thick*2+margin,tab_size+margin],center=true);
+}
 module place_wall(pos=[0,0,0],rot=0)
 {
     translate(pos) rotate([90,0,rot])
@@ -19,23 +26,41 @@ module ground()
 }
 module north_wall()
 {
-    square([building_size.x+wall_thick,
-            building_size.z]);
+    difference() {
+        square([building_size.x+wall_thick,
+                building_size.z]);
+        wall_tabs();
+        translate([building_size.x+wall_thick,0]) wall_tabs();
+    }
 }
 module east_wall()
 {
-    square([building_size.y+wall_thick,
-            building_size.z]);
+    difference() {
+        square([building_size.y+wall_thick,
+                building_size.z]);
+        wall_tabs(inverse=true);
+        translate([building_size.y+wall_thick,0])
+            wall_tabs(inverse=true);
+    }
 }
 module south_wall()
 {
-    square([building_size.x+wall_thick,
-            building_size.z]);
+    difference() {
+        square([building_size.x+wall_thick,
+                building_size.z]);
+        wall_tabs();
+        translate([building_size.x+wall_thick,0]) wall_tabs();
+    }
 }
 module west_wall()
 {
-    square([building_size.y+wall_thick,
-            building_size.z]);
+    difference() {
+        square([building_size.y+wall_thick,
+                building_size.z]);
+        wall_tabs(inverse=true);
+        translate([building_size.y+wall_thick,0])
+            wall_tabs(inverse=true);
+    }
 }
 color("green") ground();
 color("blue") place_wall(pos=[0,building_size.y,0])
