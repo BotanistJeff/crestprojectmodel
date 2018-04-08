@@ -42,17 +42,33 @@ module normal_wall(length, inverse=false)
 }
 module north_wall()
 {
-    normal_wall(building_size.x);
+    difference() {
+        normal_wall(building_size.x);
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
+                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        }
+    }
 }
 module east_wall()
 {
-    normal_wall(building_size.y, inverse=true);
+    difference() {
+        normal_wall(building_size.y, inverse=true);
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            for(x=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
+                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        }
+    }
 }
 module south_wall()
 {
     difference() {
         normal_wall(building_size.x);
         translate([warehouse_size.x,0]) wall_tabs();
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            translate([building_size.x-(apartment_depth+hallway_width)/2,y])
+                square([2000+margin,wall_thick+margin],center=true);
+        }
     }
 }
 module west_wall()
@@ -60,25 +76,59 @@ module west_wall()
     difference() {
         normal_wall(building_size.y, inverse=true);
         translate([warehouse_size.y,0]) wall_tabs(inverse=true);
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            translate([building_size.y-(apartment_depth+hallway_width)/2,y])
+                square([2000+margin,wall_thick+margin],center=true);
+        }
     }
 }
 module north_int()
 {
-    normal_wall(warehouse_size.x);
+    difference() {
+        normal_wall(warehouse_size.x);
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            for(x=[apartment_width/2:apartment_width:warehouse_size.x])
+                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        }
+    }
 }
 module east_int ()
 {
-    normal_wall(warehouse_size.y, inverse=true);
+    difference() {
+        normal_wall(warehouse_size.y, inverse=true);
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            for(x=[apartment_width/2:apartment_width:warehouse_size.y])
+                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        }
+    }
 }
 module apartment_floor()
 {
-    offset(delta=half_wall) difference() {
+    offset(delta=-half_wall) difference() {
         square([building_size.x,building_size.y]);
         translate([-(apartment_depth+hallway_width),
                    -(apartment_depth+hallway_width)])
             square([building_size.x,building_size.y]);
 
     }
+    // support tabs out to east wall
+    for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
+        translate([building_size.x,y]) square([wall_thick+margin,2000], center=true);
+    // support tabs out to north wall
+    for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
+        translate([x,building_size.y]) square([2000,wall_thick+margin], center=true);
+    // support tab on south wall
+    translate([building_size.x-(apartment_depth+hallway_width)/2,0])
+        square([2000,wall_thick+margin], center=true);
+    // support tab on west wall
+    translate([0,building_size.y-(apartment_depth+hallway_width)/2])
+        square([wall_thick+margin,2000], center=true);
+    // support tabs on interior east wall
+    for(y=[apartment_width/2:apartment_width:warehouse_size.y])
+        translate([warehouse_size.x,y]) square([wall_thick+margin,2000], center=true);
+    // support tabs on interior north wall
+    for(x=[apartment_width/2:apartment_width:warehouse_size.x])
+        translate([x,warehouse_size.y]) square([2000,wall_thick+margin], center=true);
 }
 module upright_wall()
 {
@@ -95,7 +145,7 @@ color("blue") place_wall(pos=[0,warehouse_size.y,0]) north_int();
 place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
 
 for(z=[floor_height:floor_height:building_size.z-1])
-    translate([0,0,z])
+    translate([0,0,z-half_wall])
         color("purple") linear_extrude(wall_thick) apartment_floor();
 for(y=[apartment_width:apartment_width:building_size.y-apartment_width])
     color("orange") place_wall([building_size.x-apartment_depth,y,0]) upright_wall();
