@@ -115,13 +115,19 @@ module east_int ()
 module apart_north_doors()
 {
     offset(delta=-half_wall) square([building_size.x-apartment_depth,
-                                    floor_height]);
+                                     floor_height]);
+    translate([building_size.x-apartment_depth,floor_height/2])
+            square([wall_thick+margin,floor_height/2+margin], center=true);
 }
 
 module apart_east_doors()
 {
-    offset(delta=-half_wall) square([building_size.y-apartment_width+wall_thick,
+    difference() {
+        offset(delta=-half_wall) square([building_size.y-apartment_width+wall_thick,
                                     floor_height]);
+        translate([building_size.y-apartment_depth,floor_height/2])
+            square([wall_thick+margin,floor_height/2+margin], center=true);
+    }
 }
 
 module apartment_floor()
@@ -188,7 +194,7 @@ place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
 for(z=[0:floor_height:building_size.z-1]) {
     color("cyan") place_wall([0,building_size.y-apartment_depth,z])
         apart_north_doors();
-    color("cyan") place_wall([building_size.x-apartment_depth,0,z], rot=90)
+    color("salmon") place_wall([building_size.x-apartment_depth,0,z], rot=90)
         apart_east_doors();
 }
 
