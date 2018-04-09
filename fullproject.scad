@@ -112,6 +112,18 @@ module east_int ()
         }
     }
 }
+module apart_north_doors()
+{
+    offset(delta=-half_wall) square([building_size.x-apartment_depth,
+                                    floor_height]);
+}
+
+module apart_east_doors()
+{
+    offset(delta=-half_wall) square([building_size.y-apartment_width+wall_thick,
+                                    floor_height]);
+}
+
 module apartment_floor()
 {
     difference() {
@@ -151,8 +163,8 @@ module apartment_floor()
 module upright_wall()
 {
     difference() {
-        translate([-wall_thick/2,0])
-            square([apartment_depth+wall_thick, building_size.z]);
+        translate([half_wall,0])
+            square([apartment_depth, building_size.z]);
         translate([apartment_depth,0])
             for(y=[0:building_size.z/4:building_size.z])
                 translate([0,y])
@@ -171,6 +183,14 @@ place_wall(rot=90) west_wall();
 
 color("blue") place_wall(pos=[0,warehouse_size.y,0]) north_int();
 place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
+
+// Interior apartment door walls, one per floor
+for(z=[0:floor_height:building_size.z-1]) {
+    color("cyan") place_wall([0,building_size.y-apartment_depth,z])
+        apart_north_doors();
+    color("cyan") place_wall([building_size.x-apartment_depth,0,z], rot=90)
+        apart_east_doors();
+}
 
 for(z=[floor_height:floor_height:building_size.z-1])
     translate([0,0,z-half_wall])
