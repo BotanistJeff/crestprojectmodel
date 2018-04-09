@@ -104,12 +104,19 @@ module east_int ()
 }
 module apartment_floor()
 {
-    offset(delta=-half_wall) difference() {
-        square([building_size.x,building_size.y]);
-        translate([-(apartment_depth+hallway_width),
-                   -(apartment_depth+hallway_width)])
+    difference() {
+        offset(delta=-(half_wall)) difference() {
             square([building_size.x,building_size.y]);
+            translate([-(apartment_depth+hallway_width),
+                       -(apartment_depth+hallway_width)])
+                square([building_size.x,building_size.y]);
+        }
 
+        // slots for interior wall placement
+        for(y=[apartment_width:apartment_width:building_size.y-apartment_width])
+            translate([building_size.x,y]) square([apartment_depth,wall_thick+margin], center=true);
+        for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2])
+            translate([x,building_size.y]) square([wall_thick+margin,apartment_depth], center=true);
     }
     // support tabs out to east wall
     for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
@@ -129,10 +136,16 @@ module apartment_floor()
     // support tabs on interior north wall
     for(x=[apartment_width/2:apartment_width:warehouse_size.x])
         translate([x,warehouse_size.y]) square([2000,wall_thick+margin], center=true);
+
 }
 module upright_wall()
 {
-    normal_wall(apartment_depth);
+    difference() {
+        normal_wall(apartment_depth);
+        // slots for interior wall placement
+        for(y=[floor_height:floor_height:building_size.z-1])
+            translate([0,y]) square([apartment_depth,wall_thick+margin], center=true);
+    }
 }
 color("green") ground();
 
