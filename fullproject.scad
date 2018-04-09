@@ -130,12 +130,16 @@ module apart_doors(length)
         for(x=[apartment_width/4:apartment_width:length])
             translate([x,0]) square([1000,2000*2], center=true);
     }
+    for(x=[apartment_width:apartment_width:length-1000])
+        translate([x,floor_height]) square([1000,wall_thick+margin], center=true);
+    for(x=[apartment_width*2/4:apartment_width:length-1000])
+        translate([x,0]) square([1000,wall_thick+margin], center=true);
 }
 module apart_north_doors()
 {
     apart_doors(building_size.x-apartment_depth);
     translate([building_size.x-apartment_depth,floor_height/2])
-            square([wall_thick+margin,floor_height/2+margin], center=true);
+        square([wall_thick+margin,floor_height/2+margin], center=true);
 }
 
 module apart_east_doors()
@@ -162,6 +166,14 @@ module apartment_floor()
             translate([building_size.x,y]) square([apartment_depth,wall_thick+margin], center=true);
         for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2])
             translate([x,building_size.y]) square([wall_thick+margin,apartment_depth], center=true);
+
+
+        for(x=[apartment_width/2:apartment_width/2:building_size.x-apartment_depth-1000])
+            translate([x,building_size.y-apartment_depth])
+                square([1000,wall_thick+margin], center=true);
+        for(y=[apartment_width/2:apartment_width/2:building_size.y-apartment_depth-1000])
+            translate([building_size.x-apartment_depth,y])
+                square([wall_thick+margin,1000], center=true);
     }
     // support tabs out to east wall
     for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
