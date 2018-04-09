@@ -112,16 +112,23 @@ module east_int ()
         }
     }
 }
+module apart_doors(length)
+{
+    difference() {
+        offset(delta=-half_wall)
+            square([length, floor_height]);
+        for(x=[apartment_width/4:apartment_width:length])
+            translate([x,0]) square([1000,2000*2], center=true);
+    }
+}
 module apart_north_doors()
 {
-    offset(delta=-half_wall) square([building_size.x-apartment_depth,
-                                    floor_height]);
+    apart_doors(building_size.x-apartment_depth);
 }
 
 module apart_east_doors()
 {
-    offset(delta=-half_wall) square([building_size.y-apartment_width+wall_thick,
-                                    floor_height]);
+    apart_doors(building_size.y-apartment_width+wall_thick);
 }
 
 module apartment_floor()
