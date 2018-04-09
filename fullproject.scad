@@ -40,33 +40,43 @@ module normal_wall(length, inverse=false)
         translate([length,0]) wall_tabs(inverse);
     }
 }
+
+module window_wall(length, inverse=false)
+{
+    difference() {
+        normal_wall(length, inverse);
+        // Windows
+        for(y=[floor_height*5/8:floor_height:building_size.z-1])
+            for(x=[apartment_width/2:apartment_width:length-apartment_width/2])
+                translate([x,y])
+                    square([apartment_width/2,floor_height*1/2], center=true);
+        // Tabs for flooring piece
+        for(y=[floor_height:floor_height:building_size.z-1])
+            for(x=[apartment_width/2:apartment_width:length-apartment_width/2])
+                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+    }
+}
 module north_wall()
 {
     difference() {
-        normal_wall(building_size.x);
-        for(y=[floor_height:floor_height:building_size.z-1]) {
-            for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
-                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        window_wall(building_size.x);
+        // Tabs for divider walls
         for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2]) {
             for(y=[building_size.z/8:building_size.z/4:building_size.z])
                 translate([x,y])
                     square([wall_thick+margin,building_size.z/8+margin],center=true);
-            }
         }
     }
 }
 module east_wall()
 {
     difference() {
-        normal_wall(building_size.y, inverse=true);
-        for(y=[floor_height:floor_height:building_size.z-1]) {
-            for(x=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
-                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        window_wall(building_size.y, inverse=true);
+        // Tabs for divider walls
         for(x=[apartment_width:apartment_width:building_size.y-apartment_width]) {
             for(y=[building_size.z/8:building_size.z/4:building_size.z])
                 translate([x,y])
                     square([wall_thick+margin,building_size.z/8+margin],center=true);
-            }
         }
     }
 }
