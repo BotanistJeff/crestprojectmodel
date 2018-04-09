@@ -47,6 +47,11 @@ module north_wall()
         for(y=[floor_height:floor_height:building_size.z-1]) {
             for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
                 translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2]) {
+            for(y=[building_size.z/8:building_size.z/4:building_size.z])
+                translate([x,y])
+                    square([wall_thick+margin,building_size.z/8+margin],center=true);
+            }
         }
     }
 }
@@ -57,6 +62,11 @@ module east_wall()
         for(y=[floor_height:floor_height:building_size.z-1]) {
             for(x=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
                 translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        for(x=[apartment_width:apartment_width:building_size.y-apartment_width]) {
+            for(y=[building_size.z/8:building_size.z/4:building_size.z])
+                translate([x,y])
+                    square([wall_thick+margin,building_size.z/8+margin],center=true);
+            }
         }
     }
 }
@@ -141,7 +151,12 @@ module apartment_floor()
 module upright_wall()
 {
     difference() {
-        normal_wall(apartment_depth);
+        translate([-wall_thick/2,0])
+            square([apartment_depth+wall_thick, building_size.z]);
+        translate([apartment_depth,0])
+            for(y=[0:building_size.z/4:building_size.z])
+                translate([0,y])
+                    square([wall_thick+margin,building_size.z/8+margin],center=true);
         // slots for interior wall placement
         for(y=[floor_height:floor_height:building_size.z-1])
             translate([0,y]) square([apartment_depth,wall_thick+margin], center=true);
