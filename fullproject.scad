@@ -88,6 +88,9 @@ module south_wall()
         for(y=[floor_height:floor_height:building_size.z-1]) {
             translate([building_size.x-(apartment_depth+hallway_width)/2,y])
                 square([2000+margin,wall_thick+margin],center=true);
+        for(y=[floor_height/2:floor_height:building_size.z-1])
+            translate([building_size.x-apartment_depth,y])
+                square([wall_thick+margin,floor_height/2+margin], center=true);
         }
     }
 }
@@ -99,6 +102,9 @@ module west_wall()
         for(y=[floor_height:floor_height:building_size.z-1]) {
             translate([building_size.y-(apartment_depth+hallway_width)/2,y])
                 square([2000+margin,wall_thick+margin],center=true);
+        for(y=[floor_height/2:floor_height:building_size.z-1])
+            translate([building_size.y-apartment_depth,y])
+                square([wall_thick+margin,floor_height/2+margin], center=true);
         }
     }
 }
@@ -135,7 +141,9 @@ module apart_north_doors()
 {
     apart_doors(building_size.x-apartment_depth);
     translate([building_size.x-apartment_depth,floor_height/2])
-            square([wall_thick+margin,floor_height/2+margin], center=true);
+            square([wall_thick+margin,floor_height/2-margin], center=true);
+    translate([0,floor_height/2])
+        square([wall_thick+margin,floor_height/2-margin], center=true);
 }
 
 module apart_east_doors()
@@ -145,6 +153,8 @@ module apart_east_doors()
         translate([building_size.y-apartment_depth,floor_height/2])
             square([wall_thick+margin,floor_height/2+margin], center=true);
     }
+    translate([0,floor_height/2])
+        square([wall_thick+margin,floor_height/2-margin], center=true);
 }
 
 module apartment_floor()
