@@ -84,13 +84,21 @@ module window_wall(length, inverse=false)
 module north_wall()
 {
     difference() {
-        window_wall(building_size.x);
-        // Tabs for divider walls
-        for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2]) {
-            for(y=[building_size.z/8:building_size.z/4:building_size.z])
-                translate([x,y])
-                    square([wall_thick+margin,building_size.z/8+margin],center=true);
+        union() {
+            difference() {
+                window_wall(building_size.x);
+                // Tabs for divider walls
+                for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2]) {
+                    for(y=[building_size.z/8:building_size.z/4:building_size.z])
+                        translate([x,y])
+                            square([wall_thick+margin,building_size.z/8+margin],center=true);
+                }
+            }
+            translate([apartment_width*8.5,floor_height*5/8])
+                square([apartment_width/2+10,floor_height*1/2+10], center=true);
         }
+        translate([apartment_width*8.5,0])
+            square([1000,2000*2], center=true);
     }
     for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
         translate([x,0]) square([2000,wall_thick+margin], center=true);
