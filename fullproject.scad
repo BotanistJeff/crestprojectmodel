@@ -30,12 +30,30 @@ module ground()
     difference() {
         translate([(building_size.x-A2_sheet.x)/2,(building_size.y-A2_sheet.y)/2])
             square([A2_sheet.x,A2_sheet.y]);
+
+        //notches for door walls
         for(x=[apartment_width/2:apartment_width:building_size.x-apartment_depth-1000])
             translate([x,building_size.y-apartment_depth])
-                square([1000,wall_thick+margin], center=true);
+                square([1000+margin,wall_thick+margin], center=true);
         for(y=[apartment_width/2:apartment_width:building_size.y-apartment_depth-100])
             translate([building_size.x-apartment_depth,y])
-                square([wall_thick+margin,1000], center=true);
+                square([wall_thick+margin,1000+margin], center=true);
+
+        //notches for exterior walls
+        for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
+            translate([x,0]) square([2000+margin,wall_thick+margin], center=true);
+        for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
+            translate([x,building_size.y]) square([2000+margin,wall_thick+margin], center=true);
+        for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
+            translate([0,y]) square([wall_thick+margin,2000+margin], center=true);
+        for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
+            translate([building_size.x,y]) square([wall_thick+margin,2000+margin], center=true);
+
+        //notches for warehouse walls
+        for(x=[apartment_width/2:apartment_width:building_size.x-apartment_depth-hallway_width])
+            translate([x,warehouse_size.y]) square([2000+margin,wall_thick+margin], center=true);
+        for(y=[apartment_width/2:apartment_width:building_size.y-apartment_depth-hallway_width])
+            translate([warehouse_size.x,y]) square([wall_thick+margin,2000+margin], center=true);
     }
 }
 module normal_wall(length, inverse=false)
