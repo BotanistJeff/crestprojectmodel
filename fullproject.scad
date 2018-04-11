@@ -117,19 +117,30 @@ module east_wall()
     for(x=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
         translate([x,0]) square([2000,wall_thick+margin], center=true);
 }
+module warehouse_wall(length, inverse=false)
+{
+    warehouse_length = length - apartment_depth - hallway_width;
+    difference() {
+        normal_wall(length, inverse);
+        // Fire Escape Wall tabs
+        translate([warehouse_length-4000,0]) wall_tabs(inverse);
+        // Interior Wall tabs
+        translate([warehouse_length,0]) wall_tabs(inverse);
+        for(y=[floor_height:floor_height:building_size.z-1])
+            translate([length-(apartment_depth+hallway_width)/2,y])
+                square([2000+margin,wall_thick+margin],center=true);
+        for(y=[floor_height/2:floor_height:building_size.z-1])
+            translate([length-apartment_depth,y])
+                square([wall_thick+margin,floor_height/2+margin], center=true);
+        // Fire escape doors
+        translate([warehouse_length+hallway_width/2,0]) square([1000,2000*2], center=true);
+        translate([warehouse_length-hallway_width/2,0]) square([1000,2000*2], center=true);
+    }
+}
 module south_wall()
 {
     difference() {
-        normal_wall(building_size.x);
-        translate([warehouse_size.x,0]) wall_tabs();
-        for(y=[floor_height:floor_height:building_size.z-1]) {
-            translate([building_size.x-(apartment_depth+hallway_width)/2,y])
-                square([2000+margin,wall_thick+margin],center=true);
-        for(y=[floor_height/2:floor_height:building_size.z-1])
-            translate([building_size.x-apartment_depth,y])
-                square([wall_thick+margin,floor_height/2+margin], center=true);
-        translate([warehouse_size.x+hallway_width/2,0]) square([1000,2000*2], center=true);
-        }
+        warehouse_wall(building_size.x);
     }
     for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
         translate([x,0]) square([2000,wall_thick+margin], center=true);
@@ -137,43 +148,54 @@ module south_wall()
 module west_wall()
 {
     difference() {
-        normal_wall(building_size.y, inverse=true);
-        translate([warehouse_size.y,0]) wall_tabs(inverse=true);
-        for(y=[floor_height:floor_height:building_size.z-1]) {
-            translate([building_size.y-(apartment_depth+hallway_width)/2,y])
-                square([2000+margin,wall_thick+margin],center=true);
-        for(y=[floor_height/2:floor_height:building_size.z-1])
-            translate([building_size.y-apartment_depth,y])
-                square([wall_thick+margin,floor_height/2+margin], center=true);
-        translate([warehouse_size.y+hallway_width/2,0]) square([1000,2000*2], center=true);
-        }
+        warehouse_wall(building_size.y, inverse=true);
     }
     for(x=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
+        translate([x,0]) square([2000,wall_thick+margin], center=true);
+}
+module interior_warehouse_wall(length, inverse=false)
+{
+    difference() {
+        normal_wall(length, inverse);
+        // apartment floor tabs
+        for(y=[floor_height:floor_height:building_size.z-1]) {
+            for(x=[apartment_width/2:apartment_width:length])
+                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        }
+        // Fire escape doors
+        for(y=[half_wall+1000:floor_height:building_size.z-1])
+            translate([apartment_width/4,y]) square([1000,2000], center=true);
+        // Fire escape wall tabs
+        translate([4000,0]) wall_tabs(inverse);
+        // Elevator shaft wall tabs
+        translate([length-5000,0]) wall_tabs(inverse);
+    }
+    // tabs into floor
+    for(x=[apartment_width/2:apartment_width:length])
         translate([x,0]) square([2000,wall_thick+margin], center=true);
 }
 module north_int()
 {
     difference() {
-        normal_wall(warehouse_size.x);
-        for(y=[floor_height:floor_height:building_size.z-1]) {
-            for(x=[apartment_width/2:apartment_width:warehouse_size.x])
-                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
-        }
+        interior_warehouse_wall(warehouse_size.x);
+        // Elevator doors
+        for(y=[half_wall+1000:floor_height:building_size.z-1])
+            translate([warehouse_size.x-2500,y]) square([2000,2000], center=true);
     }
-    for(x=[apartment_width/2:apartment_width:building_size.x-apartment_depth-hallway_width])
-        translate([x,0]) square([2000,wall_thick+margin], center=true);
 }
-module east_int ()
+module east_int()
 {
     difference() {
-        normal_wall(warehouse_size.y, inverse=true);
-        for(y=[floor_height:floor_height:building_size.z-1]) {
-            for(x=[apartment_width/2:apartment_width:warehouse_size.y])
-                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
-        }
+        interior_warehouse_wall(warehouse_size.y, inverse=true);
     }
-    for(x=[apartment_width/2:apartment_width:building_size.y-apartment_depth-hallway_width])
-        translate([x,0]) square([2000,wall_thick+margin], center=true);
+}
+module fire_escape_wall(inverse=false)
+{
+    normal_wall(4000, inverse);
+}
+module elevator_wall(inverse=false)
+{
+    normal_wall(5000, inverse);
 }
 module apart_doors(length)
 {
@@ -284,6 +306,15 @@ for(z=[0:floor_height:building_size.z-1]) {
     color("salmon") place_wall([building_size.x-apartment_depth,0,z], rot=90)
         apart_east_doors();
 }
+
+// Fire Escapes
+color("blue") place_wall([0,warehouse_size.y-4000]) fire_escape_wall();
+place_wall([4000,warehouse_size.y-4000], rot=90) fire_escape_wall(inverse=true);
+color("blue") place_wall([warehouse_size.x-4000,4000]) fire_escape_wall();
+place_wall([warehouse_size.x-4000,0], rot=90) fire_escape_wall(inverse=true);
+// Elevator shaft
+color("blue") place_wall([warehouse_size.x-5000,warehouse_size.y-5000]) elevator_wall();
+place_wall([warehouse_size.x-5000,warehouse_size.y-5000], rot=90) elevator_wall(inverse=true);
 
 for(z=[floor_height:floor_height:building_size.z-1])
     translate([0,0,z-half_wall])
