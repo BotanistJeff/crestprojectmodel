@@ -2,6 +2,7 @@ building_size=[50000,35000,12000];
 apartment_depth=7000;
 apartment_width=5000;
 hallway_width=2000;
+A2_sheet=[59400,42000];
 warehouse_size=[building_size.x-(apartment_depth+hallway_width),
                 building_size.y-(apartment_depth+hallway_width),
                 building_size.z];
@@ -26,10 +27,8 @@ module place_wall(pos=[0,0,0],rot=0)
 }
 module ground()
 {
-    translate([-5000,-5000,-10])
-        cube([building_size.x+10000,
-              building_size.y+10000,
-              10]);
+    translate([(building_size.x-A2_sheet.x)/2,(building_size.y-A2_sheet.y)/2])
+        square([A2_sheet.x,A2_sheet.y]);
 }
 module normal_wall(length, inverse=false)
 {
@@ -221,7 +220,8 @@ module upright_wall()
             translate([0,y]) square([apartment_depth,wall_thick+margin], center=true);
     }
 }
-color("green") ground();
+translate([0,0,-half_wall])
+    color("green") linear_extrude(wall_thick) ground();
 
 color("blue") place_wall(pos=[0,building_size.y,0]) north_wall();
 place_wall(pos=[building_size.x,0,0],rot=90) east_wall();
