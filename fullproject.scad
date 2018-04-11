@@ -27,8 +27,16 @@ module place_wall(pos=[0,0,0],rot=0)
 }
 module ground()
 {
-    translate([(building_size.x-A2_sheet.x)/2,(building_size.y-A2_sheet.y)/2])
-        square([A2_sheet.x,A2_sheet.y]);
+    difference() {
+        translate([(building_size.x-A2_sheet.x)/2,(building_size.y-A2_sheet.y)/2])
+            square([A2_sheet.x,A2_sheet.y]);
+        for(x=[apartment_width/2:apartment_width:building_size.x-apartment_depth-1000])
+            translate([x,building_size.y-apartment_depth])
+                square([1000,wall_thick+margin], center=true);
+        for(y=[apartment_width/2:apartment_width:building_size.y-apartment_depth-100])
+            translate([building_size.x-apartment_depth,y])
+                square([wall_thick+margin,1000], center=true);
+    }
 }
 module normal_wall(length, inverse=false)
 {
@@ -182,7 +190,7 @@ module apartment_floor()
         for(x=[apartment_width/2:apartment_width/2:building_size.x-apartment_depth-1000])
             translate([x,building_size.y-apartment_depth])
                 square([1000,wall_thick+margin], center=true);
-        for(y=[apartment_width/2:apartment_width/2:building_size.y-apartment_depth-1000])
+        for(y=[apartment_width/2:apartment_width/2:building_size.y-apartment_depth-100])
             translate([building_size.x-apartment_depth,y])
                 square([wall_thick+margin,1000], center=true);
     }
