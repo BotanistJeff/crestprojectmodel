@@ -5,7 +5,7 @@ hallway_width=2000;
 warehouse_size=[building_size.x-(apartment_depth+hallway_width),
                 building_size.y-(apartment_depth+hallway_width),
                 building_size.z];
-wall_thick=200;
+wall_thick=500;
 half_wall=wall_thick/2;
 tab_size=2000;
 margin=1;
@@ -91,6 +91,7 @@ module south_wall()
         for(y=[floor_height/2:floor_height:building_size.z-1])
             translate([building_size.x-apartment_depth,y])
                 square([wall_thick+margin,floor_height/2+margin], center=true);
+        translate([warehouse_size.x+hallway_width/2,0]) square([1000,2000*2], center=true);
         }
     }
 }
@@ -105,6 +106,7 @@ module west_wall()
         for(y=[floor_height/2:floor_height:building_size.z-1])
             translate([building_size.y-apartment_depth,y])
                 square([wall_thick+margin,floor_height/2+margin], center=true);
+        translate([warehouse_size.y+hallway_width/2,0]) square([1000,2000*2], center=true);
         }
     }
 }
