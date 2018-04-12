@@ -11,7 +11,9 @@ half_wall=wall_thick/2;
 tab_size=2000;
 margin=1;
 floor_height = building_size.z/4;
-roof_overhang=100;
+roof_overhang=1000;
+roof_base_height=500;
+roof_angle=3;
 
 module wall_tabs(inverse=false)
 {
@@ -291,8 +293,9 @@ module upright_wall()
 }
 module roof()
 {
-    translate([0,0])
-        square([building_size.x,building_size.y/cos(building_size.y)]);
+    translate([-roof_overhang-half_wall,-(roof_overhang+half_wall)/cos(roof_angle)])
+        square([building_size.x+roof_overhang*2+wall_thick,
+                (building_size.y+roof_overhang*2+wall_thick)/cos(roof_angle)]);
 }
 module 3d_model()
 {
@@ -331,6 +334,10 @@ module 3d_model()
         color("orange") place_wall([building_size.x-apartment_depth,y,0]) upright_wall();
     for(x=[apartment_width:apartment_width:building_size.x-2*apartment_width])
         color("orange") place_wall([x,building_size.y-apartment_depth,0],rot=90) upright_wall();
+
+    translate([0,0,building_size.z+roof_base_height])
+        rotate([roof_angle,0,0])
+            color("olive") roof();
 }
 
 module 2d_elevator_fire() {
