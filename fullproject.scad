@@ -63,7 +63,7 @@ module normal_wall(length, inverse=false)
         translate([-wall_thick/2,half_wall])
             square([length+wall_thick, building_size.z-half_wall]);
         wall_tabs(inverse);
-        translate([length,0]) wall_tabs(inverse);
+        translate([length,0]) wall_tabs(!inverse);
     }
 }
 
@@ -77,9 +77,9 @@ module window_wall(length, inverse=false)
                 translate([x,y])
                     square([apartment_width/2,floor_height*1/2], center=true);
         // Tabs for flooring piece
-        for(y=[floor_height:floor_height:building_size.z-1])
-            for(x=[apartment_width/2:apartment_width:length-apartment_width/2])
-                translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
+        //for(y=[floor_height:floor_height:building_size.z-1])
+        //    for(x=[apartment_width/2:apartment_width:length-apartment_width/2])
+        //        translate([x,y]) square([2000+margin,wall_thick+margin], center=true);
     }
 }
 module north_wall()
@@ -87,7 +87,7 @@ module north_wall()
     difference() {
         union() {
             difference() {
-                window_wall(building_size.x);
+                window_wall(building_size.x, inverse=true);
                 // Tabs for divider walls
                 for(x=[apartment_width:apartment_width:building_size.x-apartment_width*2]) {
                     for(y=[building_size.z/8:building_size.z/4:building_size.z])
@@ -107,7 +107,7 @@ module north_wall()
 module east_wall()
 {
     difference() {
-        window_wall(building_size.y, inverse=true);
+        window_wall(building_size.y);
         // Tabs for divider walls
         for(x=[apartment_width:apartment_width:building_size.y-apartment_width]) {
             for(y=[building_size.z/8:building_size.z/4:building_size.z])
@@ -256,11 +256,11 @@ module apartment_floor()
                 square([wall_thick+margin,1000], center=true);
     }
     // support tabs out to east wall
-    for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
-        translate([building_size.x,y]) square([wall_thick+margin,2000], center=true);
+    //for(y=[apartment_width/2:apartment_width:building_size.y-apartment_width/2])
+    //    translate([building_size.x,y]) square([wall_thick+margin,2000], center=true);
     // support tabs out to north wall
-    for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
-        translate([x,building_size.y]) square([2000,wall_thick+margin], center=true);
+    //for(x=[apartment_width/2:apartment_width:building_size.x-apartment_width/2])
+    //    translate([x,building_size.y]) square([2000,wall_thick+margin], center=true);
     // support tab on south wall
     translate([building_size.x-(apartment_depth+hallway_width)/2,0])
         square([2000,wall_thick+margin], center=true);
@@ -296,35 +296,82 @@ module roof()
 translate([0,0,-half_wall])
     color("green") linear_extrude(wall_thick) ground();
 
-color("blue") place_wall(pos=[0,building_size.y,0]) north_wall();
-place_wall(pos=[building_size.x,0,0],rot=90) east_wall();
-color("red") place_wall() south_wall();
-place_wall(rot=90) west_wall();
+module 3d_model()
+{
+    translate([0,0,-half_wall])
+        color("green") linear_extrude(wall_thick) ground();
 
-color("blue") place_wall(pos=[0,warehouse_size.y,0]) north_int();
-place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
+    color("blue") place_wall(pos=[0,building_size.y,0]) north_wall();
+    place_wall(pos=[building_size.x,0,0],rot=90) east_wall();
+    color("red") place_wall() south_wall();
+    place_wall(rot=90) west_wall();
 
-// Interior apartment door walls, one per floor
-for(z=[0:floor_height:building_size.z-1]) {
-    color("cyan") place_wall([0,building_size.y-apartment_depth,z])
-        apart_north_doors();
-    color("salmon") place_wall([building_size.x-apartment_depth,0,z], rot=90)
-        apart_east_doors();
+    color("blue") place_wall(pos=[0,warehouse_size.y,0]) north_int();
+    place_wall(pos=[warehouse_size.x,0,0],rot=90) east_int();
+
+    // Interior apartment door walls, one per floor
+    for(z=[0:floor_height:building_size.z-1]) {
+        color("cyan") place_wall([0,building_size.y-apartment_depth,z])
+            apart_north_doors();
+        color("salmon") place_wall([building_size.x-apartment_depth,0,z], rot=90)
+            apart_east_doors();
+    }
+
+    // Fire Escapes
+    color("blue") place_wall([0,warehouse_size.y-4000]) fire_escape_wall();
+    place_wall([4000,warehouse_size.y-4000], rot=90) fire_escape_wall();
+    color("blue") place_wall([warehouse_size.x,4000], rot=180) fire_escape_wall();
+    place_wall([warehouse_size.x-4000,4000], rot=-90) fire_escape_wall();
+    // Elevator shaft
+    color("blue") place_wall([warehouse_size.x,warehouse_size.y-5000], rot=180) elevator_wall();
+    place_wall([warehouse_size.x-5000,warehouse_size.y-5000], rot=90) elevator_wall();
+
+    for(z=[floor_height:floor_height:building_size.z-1])
+        translate([0,0,z-half_wall])
+            color("purple") linear_extrude(wall_thick) apartment_floor();
+    for(y=[apartment_width:apartment_width:building_size.y-apartment_width])
+        color("orange") place_wall([building_size.x-apartment_depth,y,0]) upright_wall();
+    for(x=[apartment_width:apartment_width:building_size.x-2*apartment_width])
+        color("orange") place_wall([x,building_size.y-apartment_depth,0],rot=90) upright_wall();
 }
 
-// Fire Escapes
-color("blue") place_wall([0,warehouse_size.y-4000]) fire_escape_wall();
-place_wall([4000,warehouse_size.y-4000], rot=90) fire_escape_wall(inverse=true);
-color("blue") place_wall([warehouse_size.x-4000,4000]) fire_escape_wall();
-place_wall([warehouse_size.x-4000,0], rot=90) fire_escape_wall(inverse=true);
-// Elevator shaft
-color("blue") place_wall([warehouse_size.x-5000,warehouse_size.y-5000]) elevator_wall();
-place_wall([warehouse_size.x-5000,warehouse_size.y-5000], rot=90) elevator_wall(inverse=true);
+module 2d_elevator_fire() {
+    // Fire Escapes
+    for (i=[0:3])
+        translate([i*(4000+wall_thick*2),0]) fire_escape_wall();
 
-for(z=[floor_height:floor_height:building_size.z-1])
-    translate([0,0,z-half_wall])
-        color("purple") linear_extrude(wall_thick) apartment_floor();
-for(y=[apartment_width:apartment_width:building_size.y-apartment_width])
-    color("orange") place_wall([building_size.x-apartment_depth,y,0]) upright_wall();
-for(x=[apartment_width:apartment_width:building_size.x-2*apartment_width])
-    color("orange") place_wall([x,building_size.y-apartment_depth,0],rot=90) upright_wall();
+    // Elevator shaft
+    for (i=[0:1])
+        translate([i*(5000+wall_thick*2),building_size.z+wall_thick*2]) elevator_wall();
+
+}
+
+module 2d_cutouts() {
+    translate([0,-A2_sheet.y]) ground();
+
+    translate([0,0]) north_wall();
+    translate([0,1*(building_size.z+wall_thick*2)]) east_wall();
+    translate([0,2*(building_size.z+wall_thick*2)]) south_wall();
+    translate([0,3*(building_size.z+wall_thick*2)]) west_wall();
+
+    translate([0,4*(building_size.z+wall_thick*2)]) north_int();
+    translate([0,5*(building_size.z+wall_thick*2)]) east_int();
+
+    // Interior apartment door walls, one per floor
+    for(z=[0:floor_height:building_size.z-1]) {
+        translate([-55000,1*(building_size.z+wall_thick*2)]) apart_north_doors();
+        translate([-55000,1.5*(building_size.z+wall_thick*2)]) apart_east_doors();
+    }
+
+    for(z=[floor_height:floor_height:building_size.z-1])
+        translate([-building_size.x-wall_thick*2, 0]) apartment_floor();
+    for(y=[apartment_width:apartment_width:building_size.y-apartment_width])
+        translate([-30000,0]) upright_wall();
+    for(x=[apartment_width:apartment_width:building_size.x-2*apartment_width])
+        translate([-30000,0]) upright_wall();
+}
+
+3d_model();
+//2d_cutouts();
+//2d_elevator_fire();
+
