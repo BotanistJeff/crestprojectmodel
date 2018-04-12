@@ -291,11 +291,9 @@ module upright_wall()
 }
 module roof()
 {
-    square([building_size.x,building_size.y/cos(building_size.y)]);
+    translate([0,0])
+        square([building_size.x,building_size.y/cos(building_size.y)]);
 }
-translate([0,0,-half_wall])
-    color("green") linear_extrude(wall_thick) ground();
-
 module 3d_model()
 {
     translate([0,0,-half_wall])
