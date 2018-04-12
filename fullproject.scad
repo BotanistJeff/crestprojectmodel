@@ -11,6 +11,7 @@ half_wall=wall_thick/2;
 tab_size=2000;
 margin=1;
 floor_height = building_size.z/4;
+roof_overhang=100;
 
 module wall_tabs(inverse=false)
 {
@@ -287,6 +288,10 @@ module upright_wall()
         for(y=[floor_height:floor_height:building_size.z-1])
             translate([0,y]) square([apartment_depth,wall_thick+margin], center=true);
     }
+}
+module roof()
+{
+    square([building_size.x,building_size.y/cos(building_size.y)]);
 }
 translate([0,0,-half_wall])
     color("green") linear_extrude(wall_thick) ground();
